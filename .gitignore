@@ -1,4 +1,4 @@
-# Secrets and local configuration
+
 .env
 .env.*
 !.env.example
@@ -9,10 +9,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Generated audio output
 output_audio/*
 
-# Local tooling and OS files
+
 .vscode/
 .idea/
 .DS_Store
