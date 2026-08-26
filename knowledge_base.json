@@ -1,0 +1,122 @@
+[
+  {
+    "id": "hours",
+    "category": "general",
+    "question_keywords": ["hours", "open", "close", "timing", "സമയം", "തുറക്കുന്നത്", "അടയ്ക്കുന്നത്", "മണിക്ക്"],
+    "answer": "ഞങ്ങളുടെ റിസപ്ഷൻ രാവിലെ 7 മണി മുതൽ രാത്രി 10 മണി വരെ പ്രവർത്തിക്കും. ചെക്ക്-ഇൻ ഉച്ചയ്ക്ക് 12 മണി മുതലും ചെക്ക്-ഔട്ട് രാവിലെ 11 മണി വരെയുമാണ്."
+  },
+  {
+    "id": "location",
+    "category": "general",
+    "question_keywords": ["location", "where", "address", "സ്ഥലം", "എവിടെ", "വിലാസം"],
+    "answer": "ഞങ്ങൾ വയനാട്ടിലെ വൈത്തിരിക്ക് സമീപം സ്ഥിതി ചെയ്യുന്നു, ചുരം റോഡിൽ നിന്ന് 10 മിനിറ്റ് ദൂരം."
+  },
+  {
+    "id": "contact",
+    "category": "general",
+    "question_keywords": ["phone", "contact", "number", "ഫോൺ", "നമ്പർ"],
+    "answer": "ഞങ്ങളെ ഈ നമ്പറിൽ ബന്ധപ്പെടാം: 9876543210 (ഉദാഹരണ നമ്പർ)."
+  },
+  {
+    "id": "room_types",
+    "category": "rooms",
+    "question_keywords": ["rooms", "room types", "accommodation", "മുറി", "മുറികൾ", "എത്ര മുറി"],
+    "answer": "ഞങ്ങൾക്ക് ഡീലക്സ് റൂം, ഫാമിലി റൂം, കോട്ടേജ് എന്നിങ്ങനെ മൂന്ന് തരം താമസ സൗകര്യങ്ങൾ ഉണ്ട്."
+  },
+  {
+    "id": "room_capacity",
+    "category": "rooms",
+    "question_keywords": ["capacity", "how many people", "persons", "പേർക്ക്", "എത്ര പേർ"],
+    "answer": "ഡീലക്സ് റൂം 2 പേർക്ക്, ഫാമിലി റൂം 4 പേർക്ക്, കോട്ടേജ് 6 പേർ വരെ താമസിക്കാം."
+  },
+  {
+    "id": "pricing_deluxe",
+    "category": "pricing",
+    "question_keywords": ["price", "cost", "rate", "വില", "നിരക്ക്", "എത്രയാണ്", "deluxe"],
+    "answer": "ഡീലക്സ് റൂമിന് രാത്രി ഒന്നിന് 2500 രൂപയാണ്, പ്രഭാതഭക്ഷണം ഉൾപ്പെടെ."
+  },
+  {
+    "id": "pricing_family",
+    "category": "pricing",
+    "question_keywords": ["family room price", "family rate", "ഫാമിലി റൂം വില"],
+    "answer": "ഫാമിലി റൂമിന് രാത്രി ഒന്നിന് 4000 രൂപയാണ്, പ്രഭാതഭക്ഷണം ഉൾപ്പെടെ."
+  },
+  {
+    "id": "pricing_cottage",
+    "category": "pricing",
+    "question_keywords": ["cottage price", "cottage rate", "കോട്ടേജ് വില"],
+    "answer": "കോട്ടേജിന് രാത്രി ഒന്നിന് 6000 രൂപയാണ്, പ്രഭാതഭക്ഷണവും ഡിന്നറും ഉൾപ്പെടെ."
+  },
+  {
+    "id": "amenities",
+    "category": "amenities",
+    "question_keywords": ["amenities", "facilities", "wifi", "parking", "സൗകര്യങ്ങൾ", "വൈഫൈ", "പാർക്കിംഗ്"],
+    "answer": "സൗജന്യ വൈഫൈ, പാർക്കിംഗ്, ഹോട്ട് വാട്ടർ, ടിവി, റൂം സർവീസ് എന്നിവ എല്ലാ മുറികളിലും ലഭ്യമാണ്."
+  },
+  {
+    "id": "food",
+    "category": "amenities",
+    "question_keywords": ["food", "breakfast", "meals", "restaurant", "ഭക്ഷണം", "പ്രഭാതഭക്ഷണം"],
+    "answer": "കേരള സ്റ്റൈൽ പ്രഭാതഭക്ഷണവും ഓപ്ഷണൽ ഡിന്നറും ഞങ്ങൾ നൽകുന്നു. മുൻകൂട്ടി അറിയിച്ചാൽ പ്രത്യേക ഭക്ഷണ ക്രമീകരണങ്ങളും സാധ്യമാണ്."
+  },
+  {
+    "id": "pets",
+    "category": "amenities",
+    "question_keywords": ["pets", "pet friendly", "dog", "വളർത്തുമൃഗം", "നായ"],
+    "answer": "ക്ഷമിക്കണം, നിലവിൽ ഞങ്ങൾ വളർത്തുമൃഗങ്ങളെ അനുവദിക്കുന്നില്ല."
+  },
+  {
+    "id": "cancellation_policy",
+    "category": "policy",
+    "question_keywords": ["cancel", "cancellation", "ക്യാൻസൽ", "റദ്ദ്"],
+    "answer": "ചെക്ക്-ഇന് 24 മണിക്കൂർ മുൻപ് ക്യാൻസൽ ചെയ്താൽ മുഴുവൻ തുകയും തിരികെ ലഭിക്കും. അതിനുശേഷം ക്യാൻസൽ ചെയ്താൽ ഒരു രാത്രിയുടെ നിരക്ക് ഈടാക്കും."
+  },
+  {
+    "id": "reschedule_policy",
+    "category": "policy",
+    "question_keywords": ["reschedule", "change date", "മാറ്റം", "തീയതി മാറ്റണം"],
+    "answer": "ബുക്കിംഗ് തീയതി മാറ്റുന്നതിന് അധിക നിരക്കില്ല, ലഭ്യതയ്ക്ക് വിധേയമായി മാറ്റാം."
+  },
+  {
+    "id": "advance_payment",
+    "category": "policy",
+    "question_keywords": ["advance", "deposit", "payment", "മുൻകൂർ തുക", "പേയ്മെന്റ്"],
+    "answer": "ബുക്കിംഗ് സ്ഥിരീകരിക്കാൻ 20% മുൻകൂർ തുക നൽകണം, ബാക്കി തുക ചെക്ക്-ഇൻ സമയത്ത് നൽകാം."
+  },
+  {
+    "id": "payment_methods",
+    "category": "policy",
+    "question_keywords": ["payment method", "upi", "cash", "card", "പണം എങ്ങനെ"],
+    "answer": "UPI, ബാങ്ക് ട്രാൻസ്ഫർ, ക്യാഷ് എന്നിവയിലൂടെ പണം സ്വീകരിക്കുന്നു."
+  },
+  {
+    "id": "nearby_attractions",
+    "category": "local",
+    "question_keywords": ["nearby", "attractions", "places to visit", "സമീപം", "കാണാനുള്ള സ്ഥലങ്ങൾ"],
+    "answer": "ചെമ്പ്ര പീക്ക്, എടക്കൽ ഗുഹകൾ, സൂചിപ്പാറ വെള്ളച്ചാട്ടം എന്നിവ 20 മിനിറ്റ് ദൂരപരിധിയിലാണ്."
+  },
+  {
+    "id": "transport",
+    "category": "local",
+    "question_keywords": ["pickup", "drop", "taxi", "transport", "വണ്ടി വേണോ", "പിക്കപ്പ്"],
+    "answer": "അഭ്യർത്ഥന പ്രകാരം ബസ് സ്റ്റാൻഡിൽ നിന്നോ റെയിൽവേ സ്റ്റേഷനിൽ നിന്നോ പിക്കപ്പ് സൗകര്യം ലഭ്യമാണ്, അധിക നിരക്ക് ബാധകം."
+  },
+  {
+    "id": "group_booking",
+    "category": "booking",
+    "question_keywords": ["group", "large group", "event", "ഗ്രൂപ്പ്", "വലിയ സംഘം"],
+    "answer": "10 പേരിൽ കൂടുതലുള്ള ഗ്രൂപ്പുകൾക്ക് പ്രത്യേക നിരക്കുകൾ ലഭ്യമാണ്; ദയവായി ഞങ്ങളെ നേരിട്ട് ബന്ധപ്പെടുക."
+  },
+  {
+    "id": "off_season",
+    "category": "booking",
+    "question_keywords": ["off season", "discount", "offer", "ഓഫർ", "ഡിസ്കൗണ്ട്"],
+    "answer": "മഴക്കാലത്ത് (ജൂൺ-ഓഗസ്റ്റ്) 15% കിഴിവ് ലഭ്യമാണ്."
+  },
+  {
+    "id": "checkin_early",
+    "category": "policy",
+    "question_keywords": ["early checkin", "late checkout", "നേരത്തെ", "വൈകി"],
+    "answer": "നേരത്തെയുള്ള ചെക്ക്-ഇൻ അല്ലെങ്കിൽ വൈകിയുള്ള ചെക്ക്-ഔട്ട് ലഭ്യതയ്ക്ക് വിധേയമായി സൗജന്യമായി ക്രമീകരിക്കാൻ ശ്രമിക്കും."
+  }
+]

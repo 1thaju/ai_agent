@@ -8,7 +8,7 @@ import io
 from google import genai
 from google.genai import types
 from fastapi import APIRouter, HTTPException, UploadFile, File
-
+from rag import retrieve_context, format_context_for_prompt
 from config import SARVAM_API_KEY, SARVAM_BASE_URL, GEMINI_API_KEY, OUTPUT_DIR, SYSTEM_PROMPT
 
 import time
@@ -61,6 +61,10 @@ async def converse_fast(file: UploadFile = File(...)):
 
     t1 = time.time()
     print(f"[TIMING] STT took {t1 - t0:.2f}s")
+    retrieved = retrieve_context(transcript)
+    context_block = format_context_for_prompt(retrieved)
+    prompt = f"{context_block}\n\nCustomer said: {transcript}" if context_block else transcript
+
 
     # 2. Gemini — STREAMING
     tts_tasks = []       
@@ -81,7 +85,7 @@ async def converse_fast(file: UploadFile = File(...)):
 
     stream = client.models.generate_content_stream(
         model="gemini-3.6-flash",
-        contents=transcript,
+        contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT,
             max_output_tokens=500,
