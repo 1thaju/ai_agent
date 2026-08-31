@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from rag import retrieve_context, format_context_for_prompt
 from config import SARVAM_API_KEY, SARVAM_BASE_URL, GEMINI_API_KEY, OUTPUT_DIR, SYSTEM_PROMPT
 from database import classify_booking_action, save_call_event
+import logging
 
 import time
 
@@ -83,13 +84,16 @@ async def converse_fast(file: UploadFile = File(...)):
             resp = await http.post(
                 f"{SARVAM_BASE_URL}/text-to-speech",
                 headers={"API-Subscription-Key": SARVAM_API_KEY, "Content-Type": "application/json"},
-                json={"inputs": [sentence], "target_language_code": "ml-IN", "speaker": "anushka", "model": "bulbul:v3"},
+                json={"inputs": [sentence], "target_language_code": "ml-IN", "speaker": "ritu", "model": "bulbul:v3"},
             )
         if resp.status_code != 200:
             return index, None
         audio_b64 = resp.json()["audios"][0]
         return index, base64.b64decode(audio_b64)
 
+    #latency Checking
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("google_genai").setLevel(logging.DEBUG)
     chat = client.chats.create(
         model="gemini-3.6-flash",
         config=types.GenerateContentConfig(
