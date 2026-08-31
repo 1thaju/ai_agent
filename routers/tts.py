@@ -27,7 +27,7 @@ def generate_sarvam(req: GenerateRequest = GenerateRequest()):
     headers = {"API-Subscription-Key": SARVAM_API_KEY, "Content-Type": "application/json"}
 
     for i, text in enumerate(sentences, start=1):
-        payload = {"inputs": [text], "target_language_code": "ml-IN", "speaker": "meera", "model": "bulbul:v1"}
+        payload = {"inputs": [text], "target_language_code": "ml-IN", "speaker": "meera", "model": "bulbul:v3"}
         response = requests.post(url, json=payload, headers=headers)
 
         if response.status_code != 200:

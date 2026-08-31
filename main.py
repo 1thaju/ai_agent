@@ -3,9 +3,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from config import OUTPUT_DIR
+from database import init_db
 from routers import tts, stt, converse
 
 app = FastAPI(title="Malayalam Calling Agent")
+
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 app.include_router(tts.router)
 app.include_router(stt.router)
