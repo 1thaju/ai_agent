@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<meta charset="UTF-8">
+<title>Calling Agent — WS Test</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+  button { font-size: 18px; padding: 12px 24px; margin: 10px 0; cursor: pointer; }
+  #status { font-weight: bold; margin: 10px 0; }
+  #log { background: #f4f4f4; padding: 15px; border-radius: 6px; white-space: pre-wrap; min-height: 100px; }
+  .recording { background: #ff4444 !important; color: white; }
+</style>
+</head>
+<body>
+  <h2>Malayalam Calling Agent — WebSocket Test</h2>
+  <div id="status">Disconnected</div>
+  <button id="connectBtn">Connect</button>
+  <button id="recordBtn" disabled>Hold to Talk</button>
+  <div id="log"></div>
+  <audio id="player" controls style="width:100%; margin-top: 15px;"></audio>
+
+<script>
+  let ws = null;
+  let mediaRecorder = null;
+  let audioChunks = [];
+
+  const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+  const connectBtn = document.getElementById('connectBtn');
+  const recordBtn = document.getElementById('recordBtn');
+  const player = document.getElementById('player');
+
+  function log(msg) {
+    logEl.textContent += msg + "\n";
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  connectBtn.onclick = () => {
+    ws = new WebSocket("ws://127.0.0.1:8000/ws/converse");
+    ws.binaryType = "arraybuffer";
+
+    ws.onopen = () => {
+      statusEl.textContent = "Connected";
+      recordBtn.disabled = false;
+      log("[connected]");
+    };
+
+    ws.onmessage = (event) => {
+      if (typeof event.data === "string") {
+        const msg = JSON.parse(event.data);
+        if (msg.type === "transcript") log("You said: " + msg.text);
+        else if (msg.type === "reply_text") log("Agent: " + msg.text);
+        else if (msg.type === "error") log("ERROR: " + msg.message);
+      }
+       else {
+          const blob = new Blob([event.data], { type: "audio/wav" });
+          player.src = URL.createObjectURL(blob);
+          player.play().catch(err => {
+            log("[autoplay blocked] " + err.message + " — click the play button on the audio player below.");
+          });
+          log("[audio received]");
+        }
+    };
+
+    ws.onclose = () => {
+      statusEl.textContent = "Disconnected";
+      recordBtn.disabled = true;
+      log("[disconnected] code=" + event.code + " reason=" + event.reason)
+    };
+
+    ws.onerror = (err) => log("[ws error] " + err);
+  };
+
+  recordBtn.onmousedown = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(audioChunks, { type: "audio/webm" });
+      const buffer = await blob.arrayBuffer();
+      ws.send(buffer);
+      log("[sent " + buffer.byteLength + " bytes]");
+    };
+
+    mediaRecorder.start();
+    recordBtn.classList.add("recording");
+    recordBtn.textContent = "Recording... (release to send)";
+  };
+
+  recordBtn.onmouseup = () => {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    recordBtn.classList.remove("recording");
+    recordBtn.textContent = "Hold to Talk";
+  };
+</script>
+</body>
+</html>

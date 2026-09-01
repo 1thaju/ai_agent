@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 
 from config import OUTPUT_DIR
 from database import init_db
-from routers import tts, stt, converse
+from routers import tts, stt, converse,converse_ws
 
 app = FastAPI(title="Malayalam Calling Agent")
 
@@ -15,6 +15,7 @@ def startup_event():
 app.include_router(tts.router)
 app.include_router(stt.router)
 app.include_router(converse.router)
+app.include_router(converse_ws.router)
 
 
 @app.get("/")
