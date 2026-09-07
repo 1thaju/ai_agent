@@ -6,7 +6,7 @@ from typing import Any
 
 DB_PATH = Path("bookings.db")
 VALID_ACTIONS = ("confirm", "cancel", "reschedule", "inquiry")
-VALID_STATUS = ("pending", "confirmed", "needs_followup")
+VALID_STATUS = ("pending", "verbal_interest", "payment_pending", "confirmed", "needs_followup")
 
 
 def _connect(db_path: str | Path | None = None) -> sqlite3.Connection:
@@ -66,7 +66,7 @@ def init_db(db_path: str | Path | None = None):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TEXT NOT NULL,
             action TEXT NOT NULL CHECK(action IN ('confirm', 'cancel', 'reschedule', 'inquiry')),
-            status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'confirmed', 'needs_followup')),
+            status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'verbal_interest', 'payment_pending', 'confirmed', 'needs_followup')),
             customer_transcript TEXT NOT NULL,
             agent_reply TEXT NOT NULL,
             summary TEXT,

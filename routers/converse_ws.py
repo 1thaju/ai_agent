@@ -2,7 +2,6 @@ import asyncio
 import base64
 import re
 import time
-
 import httpx
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from google.genai import types
@@ -11,16 +10,62 @@ from config import SARVAM_API_KEY, SARVAM_BASE_URL, SYSTEM_PROMPT
 from rag import retrieve_context, format_context_for_prompt
 from database import classify_booking_action, save_call_event
 
-
 from routers.converse import client, merge_wav_files
 
 router = APIRouter()
+
+GREETING_TEXT = "നമസ്കാരം! എബിസി റിസോർട്ട് വൈത്തിരിയിലേക്ക് വിളിച്ചതിന് നന്ദി. ഇന്ന് ഞാൻ എങ്ങനെ സഹായിക്കാം?"
+RETRY_TEXT = "സോറി, ഒന്നുകൂടി പറയാമോ?" 
+FILLER_TEXT = "ഒരു നിമിഷം, ഞാൻ നോക്കട്ടെ." 
+GEMINI_TIMEOUT_SECONDS = 5
+
+
+async def synthesize_tts(text: str) -> bytes:
+    """One-shot TTS call — used for the greeting/filler/retry lines, which don't need sentence-splitting."""
+    async with httpx.AsyncClient(timeout=30) as http:
+        resp = await http.post(
+            f"{SARVAM_BASE_URL}/text-to-speech",
+            headers={"API-Subscription-Key": SARVAM_API_KEY, "Content-Type": "application/json"},
+            json={"inputs": [text], "target_language_code": "ml-IN", "speaker": "ritu", "model": "bulbul:v3"},
+        )
+    if resp.status_code != 200:
+        print(f"[ERROR] TTS failed for one-shot line: {resp.status_code} — {resp.text}")
+        return b""
+    audio_b64 = resp.json()["audios"][0]
+    return base64.b64decode(audio_b64)
 
 
 @router.websocket("/ws/converse")
 async def ws_converse(websocket: WebSocket):
     await websocket.accept()
     print("[WS] Client connected")
+
+    # --- Handshake: expect the phone number as the first message ---
+    try:
+        init_msg = await websocket.receive_json()
+        phone_number = init_msg.get("phone_number", "unknown")
+        print(f"[WS] Call started for number: {phone_number}")
+    except Exception:
+        phone_number = "unknown"
+
+    await websocket.send_json({"type": "status", "text": "connecting"})
+
+    # One chat session per call, so context carries across turns
+    chat = client.chats.create(
+        model="gemini-3.6-flash",
+        config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            max_output_tokens=500,
+            thinking_config=types.ThinkingConfig(thinking_level="minimal"),
+        ),
+    )
+
+    # --- Send greeting immediately, before waiting for any user audio ---
+    await websocket.send_json({"type": "status", "text": "connected"})
+    await websocket.send_json({"type": "reply_text", "text": GREETING_TEXT})
+    greeting_audio = await synthesize_tts(GREETING_TEXT)
+    if greeting_audio:
+        await websocket.send_bytes(greeting_audio)
 
     try:
         while True:
@@ -38,12 +83,18 @@ async def ws_converse(websocket: WebSocket):
                     data={"model": "saarika:v2.5", "language_code": "ml-IN"},
                 )
             if stt_response.status_code != 200:
+                retry_audio = await synthesize_tts(RETRY_TEXT)
                 await websocket.send_json({"type": "error", "message": f"STT failed: {stt_response.text}"})
+                if retry_audio:
+                    await websocket.send_bytes(retry_audio)
                 continue
 
             transcript = stt_response.json().get("transcript", "")
             if not transcript:
+                retry_audio = await synthesize_tts(RETRY_TEXT)
                 await websocket.send_json({"type": "error", "message": "Could not transcribe — empty transcript"})
+                if retry_audio:
+                    await websocket.send_bytes(retry_audio)
                 continue
 
             t1 = time.time()
@@ -75,28 +126,21 @@ async def ws_converse(websocket: WebSocket):
                 audio_b64 = resp.json()["audios"][0]
                 return index, base64.b64decode(audio_b64)
 
-            chat = client.chats.create(
-                model="gemini-3.6-flash",
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_PROMPT,
-                    max_output_tokens=500,
-                    thinking_config=types.ThinkingConfig(thinking_level="minimal"),
-                ),
-            )
-            chat = client.chats.create(
-                model="gemini-3.6-flash",
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_PROMPT,
-                    max_output_tokens=500,
-                    thinking_config=types.ThinkingConfig(thinking_level="minimal"),
-                ),
-            )
-
             def run_gemini_stream():
-                """Blocking call — runs in a separate thread so it doesn't freeze the event loop."""
                 return list(chat.send_message_stream(prompt))
 
-            chunks = await asyncio.to_thread(run_gemini_stream)
+            # --- Gemini call with timeout + filler fallback ---
+            # Run Gemini in the background; if it's slow, play a filler line
+            # while we keep waiting on the SAME in-flight call (never restart it).
+            gemini_task = asyncio.create_task(asyncio.to_thread(run_gemini_stream))
+            try:
+                chunks = await asyncio.wait_for(asyncio.shield(gemini_task), timeout=GEMINI_TIMEOUT_SECONDS)
+            except asyncio.TimeoutError:
+                print("[WS] Gemini slow — sending filler audio")
+                filler_audio = await synthesize_tts(FILLER_TEXT)
+                if filler_audio:
+                    await websocket.send_bytes(filler_audio)
+                chunks = await gemini_task  # wait for the original call to finish, don't re-send
 
             for chunk in chunks:
                 if not chunk.text:
@@ -120,7 +164,6 @@ async def ws_converse(websocket: WebSocket):
 
             await websocket.send_json({"type": "reply_text", "text": full_reply.strip()})
 
-            # 4. Merge audio, send back as raw bytes
             results = await asyncio.gather(*tts_tasks)
             results.sort(key=lambda r: r[0])
             audio_chunks = [audio for _, audio in results if audio is not None]
@@ -134,10 +177,9 @@ async def ws_converse(websocket: WebSocket):
             else:
                 await websocket.send_json({"type": "error", "message": "TTS produced no audio"})
 
-            # 5. Classify + persist
             action = classify_booking_action(transcript)
             status = (
-                "confirmed" if action == "confirm"
+                "verbal_interest" if action == "confirm"
                 else "needs_followup" if action in {"cancel", "reschedule"}
                 else "pending"
             )
@@ -146,10 +188,10 @@ async def ws_converse(websocket: WebSocket):
                 customer_transcript=transcript,
                 agent_reply=full_reply.strip(),
                 summary="",
-                details={"channel": "websocket", "total_time": round(t3 - t0, 2)},
+                details={"channel": "websocket", "phone_number": phone_number, "total_time": round(t3 - t0, 2)},
                 status=status,
                 confidence=0.8,
             )
 
     except WebSocketDisconnect:
-        print("[WS] Client disconnected")
+        print(f"[WS] Client disconnected — call ended for {phone_number}")
